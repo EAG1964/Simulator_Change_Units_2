@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit Conversion with Conversion Factors 2 - Physics - EAG1964</title>
+    <style>
+        :root { --blue: #2563eb; --green: #16a34a; --red: #dc2626; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; margin: 0; min-height: 100vh; align-items: flex-start; padding: 10px; box-sizing: border-box; }
+        .card { background: white; padding: 1rem 1.5rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 1400px; }
+        h1 { text-align: center; color: var(--blue); margin: 0 0 0.5rem 0; font-size: 1.5rem; }
+        h2 { text-align: center; color: #1e293b; margin: 0.2rem 0; font-size: 1.3rem; }
+        h3 { margin: 0 0 0.3rem 0; color: var(--blue); font-size: 1.1rem; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 10px; }
+        button { padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 0.9rem; }
+        .btn-mag { background: #4f46e5; color: white; }
+        .btn-tiempo { background: #0891b2; color: white; }
+        .btn-densidad { background: #059669; color: white; }
+        .btn-rapidez { background: #d97706; color: white; }
+        .expo-bar { display: none; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px; background: #eff6ff; padding: 5px; border-radius: 8px; border: 1px dashed var(--blue); }
+        .btn-expo { background: #334155; color: white; width: 35px; height: 35px; font-size: 1.1rem; }
+        .step { margin-top: 0.5rem; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.8rem; border-left: 5px solid var(--blue); }
+        .row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; flex-wrap: nowrap; }
+        input { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; width: 110px; font-weight: bold; font-size: 1rem; }
+        .in-unit { background: #fffcf0; width: 95px; }
+        .fraction { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .frac-row { display: flex; align-items: center; gap: 4px; justify-content: center; width: 100%; }
+        .frac-line { width: 200px; height: 2px; background: #334155; margin: 2px 0; border: none; }
+        .feedback { padding: 6px; border-radius: 6px; text-align: center; font-weight: bold; margin-top: 5px; font-size: 0.9rem; display: none; }
+        .error { background: #fee2e2; color: var(--red); }
+        .success { background: #dcfce7; color: var(--green); }
+        .pauta { background: #fffec7; color: #92400e; padding: 5px; border-radius: 6px; text-align: center; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; border: 1px solid #ffd700; }
+        
+        .licencia-bloque { margin-top: 15px; background: #f1f5f9; color: #475569; font-size: 11px; text-align: center; border-radius: 8px; padding: 10px; border: 1px solid #e2e8f0; }
+        .licencia-bloque a { color: #2563eb; text-decoration: none; font-weight: bold; }
+        .badge-container { margin-bottom: 8px; display: block; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="selector-inicial">
+        <h1>Unit Conversion with Conversion Factors 2</h1>
+        <div class="menu-grid">
+            <button class="btn-tiempo" onclick="iniciar('tiempo')">Time (d, h, min, s)</button>
+            <button class="btn-densidad" onclick="iniciar('densidad')">Density (kg/m³, g/cm³, g/mL)</button>
+            <button class="btn-rapidez" onclick="iniciar('rapidez')">Velocity (m/s ↔ km/h)</button>
+        </div>
+    </div>
+
+    <div id="juego" style="display:none;">
+        <h2 id="reto-txt"></h2>
+        <div class="expo-bar" id="expo-teclado">
+            <button class="btn-expo" onclick="insertarExpo('³')">³</button>
+        </div>
+
+        <div class="step">
+            <h3>1. Necessary Equivalences:</h3>
+            <div class="pauta">ALWAYS PLACE THE LARGER UNIT ON THE LEFT WITH VALUE 1</div>
+            <div id="contenedor-p2"></div>
+            <button class="btn-mag" style="width:100%;" onclick="checkPaso2()">Check Equivalences</button>
+            <div id="f2" class="feedback"></div>
+        </div>
+
+        <div id="step3-area" class="step" style="opacity:0.1; pointer-events:none;">
+            <h3>2. Conversion Factors:</h3>
+            <div class="row" id="contenedor-p3" style="overflow-x: auto;"></div>
+            <button class="btn-mag" style="width:100%; margin-top:10px;" onclick="checkPaso3()">Check Result</button>
+            <div id="f3" class="feedback"></div>
+        </div>
+        <button onclick="location.reload()" style="width:100%; margin-top:10px; background:#64748b; color:white; padding:6px;">Restart</button>
+    </div>
+
+    <div class="licencia-bloque">
+        <div class="badge-container">
+            <img src="https://visitor-badge.laobi.icu/badge?page_id=EAG1964.phychem.lab&left_text=Visitors&left_color=gray&right_color=blue" alt="Visitors">
+        </div>
+        Author: <strong>EAG1964</strong> | 2026 | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">License CC BY-NC-SA 4.0</a>
+    </div>
+</div>
+
+<script>
+    let data = { p2_sol:[], p3_sol:[], int2:3, int3:3, final_val:0, cant:0, ori:'', des:'', lastFocus:null };
+
+    function insertarExpo(exp) { 
+        if(data.lastFocus) { 
+            const start = data.lastFocus.selectionStart;
+            const end = data.lastFocus.selectionEnd;
+            const text = data.lastFocus.value;
+            data.lastFocus.value = text.slice(0, start) + exp + text.slice(end);
+            data.lastFocus.focus();
+        } 
+    }
+
+    document.addEventListener('focusin', (e) => { 
+        if(e.target.classList.contains('in-unit')) data.lastFocus = e.target; 
+    });
+
+    function iniciar(tipo) {
+        document.getElementById('selector-inicial').style.display='none';
+        document.getElementById('juego').style.display='block';
+        document.getElementById('expo-teclado').style.display = (tipo === 'densidad') ? 'flex' : 'none';
+
+        data.cant = Math.floor(Math.random()*90)+10;
+        let pasos = [];
+
+        if(tipo === 'tiempo') {
+            const unidades = ['d','h','min','s'];
+            const u_db = [{u1:'d',v1:1,u2:'h',v2:24},{u1:'h',v1:1,u2:'min',v2:60},{u1:'min',v1:1,u2:'s',v2:60}];
+            let i1 = Math.floor(Math.random()*2), i2 = i1 + Math.floor(Math.random()*2) + 1;
+            data.ori = unidades[i1]; data.des = unidades[i2];
+            for(let i=i1; i<i2; i++) pasos.push(u_db[i]);
+        } 
+        else if(tipo === 'densidad') {
+            const u = ['kg/m³', 'g/cm³', 'g/mL'];
+            data.ori = u[Math.floor(Math.random()*3)];
+            do { data.des = u[Math.floor(Math.random()*3)]; } while(data.ori === data.des);
+            
+            if ((data.ori === 'kg/m³' && data.des === 'g/cm³') || (data.ori === 'g/cm³' && data.des === 'kg/m³')) {
+                pasos.push({v1:1, u1:'kg', v2:1000, u2:'g'});
+                pasos.push({v1:1, u1:'m³', v2:1000000, u2:'cm³'});
+            } else if ((data.ori === 'kg/m³' && data.des === 'g/mL') || (data.ori === 'g/mL' && data.des === 'kg/m³')) {
+                pasos = [{v1:1, u1:'kg', v2:1000, u2:'g'}, {v1:1, u1:'m³', v2:1000000, u2:'cm³'}, {v1:1, u1:'cm³', v2:1, u2:'mL'}];
+            } else if ((data.ori === 'g/cm³' && data.des === 'g/mL') || (data.ori === 'g/mL' && data.des === 'g/cm³')) {
+                pasos.push({v1:1, u1:'cm³', v2:1, u2:'mL'});
+            }
+        }
+        else if(tipo === 'rapidez') {
+            const toMS = Math.random() > 0.5;
+            data.ori = toMS ? 'km/h' : 'm/s';
+            data.des = toMS ? 'm/s' : 'km/h';
+            pasos.push({v1:1, u1:'km', v2:1000, u2:'m'});
+            pasos.push({v1:1, u1:'h', v2:3600, u2:'s'});
+        }
+
+        document.getElementById('reto-txt').innerText = `CHALLENGE: ${data.cant} ${data.ori} to ${data.des}`;
+        setupJuego(pasos);
+    }
+
+    function setupJuego(pasos) {
+        data.p2_sol = pasos;
+        const c2 = document.getElementById('contenedor-p2'); c2.innerHTML = '';
+        data.p2_sol.forEach((p, i) => {
+            c2.innerHTML += `<div class="row"><input id="p2v1_${i}"> <input id="p2u1_${i}" class="in-unit"> <span>=</span> <input id="p2v2_${i}"> <input id="p2u2_${i}" class="in-unit"></div>`;
+        });
+        actualizarP3Sol();
+    }
+
+    function actualizarP3Sol() {
+        data.final_val = data.cant;
+        let parts = data.ori.split('/');
+        let cur_num = parts[0], cur_den = parts[1] || "";
+        data.p3_sol = data.p2_sol.map(eq => {
+            let f;
+            if(eq.u1 === cur_num || eq.u2 === cur_num) {
+                if(eq.u1 === cur_num) f = {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1};
+                else f = {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2};
+                cur_num = f.nu;
+            } else {
+                if(eq.u1 === cur_den) f = {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2};
+                else f = {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1};
+                cur_den = f.nu;
+            }
+            return f;
+        });
+        data.p3_sol.forEach(f => data.final_val = (data.final_val * f.nv) / f.dv);
+    }
+
+    function checkPaso2() {
+        let aciertos = 0;
+        let usadas = new Set();
+        
+        for (let i = 0; i < data.p2_sol.length; i++) {
+            let v1 = document.getElementById(`p2v1_${i}`).value;
+            let u1 = document.getElementById(`p2u1_${i}`).value;
+            let v2 = document.getElementById(`p2v2_${i}`).value;
+            let u2 = document.getElementById(`p2u2_${i}`).value;
+
+            let idx = data.p2_sol.findIndex((s, j) => {
+                if (usadas.has(j)) return false;
+                let normal = (v1 == s.v1 && u1 == s.u1 && v2 == s.v2 && u2 == s.u2);
+                let inverso = (v1 == s.v2 && u1 == s.u2 && v2 == s.v1 && u2 == s.u1);
+                return normal || inverso;
+            });
+
+            if (idx !== -1) { aciertos++; usadas.add(idx); }
+        }
+
+        const f = document.getElementById('f2');
+        f.style.display = 'block';
+
+        if (aciertos === data.p2_sol.length) {
+            f.innerText = "✓ Correct!";
+            f.className = "feedback success";
+            activarPaso3();
+        } else {
+            data.int2--;
+            if (data.int2 <= 0) { aplicarSolP2(); activarPaso3(); } 
+            else { f.innerText = `× Error. ${data.int2} attempts left.`; f.className = "feedback error"; }
+        }
+    }
+
+    function activarPaso3() {
+        document.getElementById('step3-area').style.opacity="1"; document.getElementById('step3-area').style.pointerEvents="auto";
+        let h = `<input id="p3_ini_val" value="${data.cant}" style="width:60px"> <input id="p3_ini_unit" class="in-unit" value="${data.ori}" style="width:70px">`;
+        data.p3_sol.forEach((s, i) => {
+            h += ` <span style="font-size:18px;">·</span> 
+                  <div class="fraction">
+                    <div class="frac-row"><input id="p3nv_${i}" style="width:100px"> <input id="p3nu_${i}" class="in-unit" style="width:90px"></div>
+                    <hr class="frac-line" style="width:200px">
+                    <div class="frac-row"><input id="p3dv_${i}" style="width:60px"> <input id="p3du_${i}" class="in-unit" style="width:90px"></div>
+                  </div>`;
+        });
+        h += ` <span>=</span> <input id="p3res" style="width:90px"> <input id="p3_fin_unit" class="in-unit" value="${data.des}" style="width:70px">`;
+        document.getElementById('contenedor-p3').innerHTML = h;
+    }
+
+    function checkPaso3() {
+        let res = parseFloat(document.getElementById('p3res').value);
+        let diff = Math.abs(res - data.final_val);
+        const f = document.getElementById('f3'); f.style.display='block';
+        if(diff < 0.000001 || (data.final_val !== 0 && diff/Math.abs(data.final_val) < 0.001)) { f.innerText="✓ Excellent!"; f.className="feedback success"; }
+        else { data.int3--; if(data.int3 <= 0) aplicarSolP3(); else { f.innerText=`× Error. ${data.int3} attempts left.`; f.className="feedback error"; } }
+    }
+
+    function aplicarSolP2() {
+        data.p2_sol.forEach((s, i) => {
+            document.getElementById(`p2v1_${i}`).value = s.v1; document.getElementById(`p2u1_${i}`).value = s.u1;
+            document.getElementById(`p2v2_${i}`).value = s.v2; document.getElementById(`p2u2_${i}`).value = s.u2;
+        });
+    }
+
+    function aplicarSolP3() {
+        data.p3_sol.forEach((s, i) => {
+            document.getElementById(`p3nv_${i}`).value = s.nv; document.getElementById(`p3nu_${i}`).value = s.nu;
+            document.getElementById(`p3dv_${i}`).value = s.dv; document.getElementById(`p3du_${i}`).value = s.du;
+        });
+        document.getElementById('p3res').value = Number(data.final_val.toPrecision(6));
+    }
+</script>
+</body>
+</html>
