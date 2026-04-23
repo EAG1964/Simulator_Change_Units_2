@@ -1,228 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
+badge<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Unit Conversion Master - EAG1964</title>
+    <title>Cambio de Unidades con Factores de Conversión 2 - Física - EAG1964</title>
     <style>
-        :root { --blue: #2563eb; --green: #16a34a; --red: #dc2626; --bg: #f8fafc; --indigo: #4f46e5; }
+        :root { --blue: #2563eb; --green: #16a34a; --red: #dc2626; --bg: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; margin: 0; min-height: 100vh; align-items: flex-start; padding: 10px; box-sizing: border-box; }
         .card { background: white; padding: 1rem 1.5rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 1400px; }
         h1 { text-align: center; color: var(--blue); margin: 0 0 0.5rem 0; font-size: 1.5rem; }
         h2 { text-align: center; color: #1e293b; margin: 0.2rem 0; font-size: 1.3rem; }
         h3 { margin: 0 0 0.3rem 0; color: var(--blue); font-size: 1.1rem; }
-        
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 10px; }
-        button { padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 0.9rem; }
-        
-        .btn-mag { background: var(--indigo); color: white; }
+        button { padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 0.9rem; }
+        .btn-mag { background: #4f46e5; color: white; }
         .btn-tiempo { background: #0891b2; color: white; }
         .btn-densidad { background: #059669; color: white; }
         .btn-rapidez { background: #d97706; color: white; }
         .btn-energia { background: #8b5cf6; color: white; }
-        .btn-temp { background: #be123c; color: white; }
-
+        .expo-bar { display: none; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px; background: #eff6ff; padding: 5px; border-radius: 8px; border: 1px dashed var(--blue); }
+        .btn-expo { background: #334155; color: white; width: 35px; height: 35px; font-size: 1.1rem; }
         .step { margin-top: 0.5rem; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.8rem; border-left: 5px solid var(--blue); }
         .row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; flex-wrap: nowrap; }
-        
-        input { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; width: 100px; font-weight: bold; font-size: 1rem; }
+        input { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; width: 110px; font-weight: bold; font-size: 1rem; }
         .in-unit { background: #fffcf0; width: 95px; }
-        
         .fraction { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .frac-row { display: flex; align-items: center; gap: 4px; justify-content: center; }
-        .frac-line { width: 100%; height: 2px; background: #334155; margin: 2px 0; border: none; }
-        
-        .feedback { padding: 8px; border-radius: 6px; text-align: center; font-weight: bold; margin-top: 5px; font-size: 0.9rem; display: none; }
+        .frac-row { display: flex; align-items: center; gap: 4px; justify-content: center; width: 100%; }
+        .frac-line { width: 200px; height: 2px; background: #334155; margin: 2px 0; border: none; }
+        .feedback { padding: 6px; border-radius: 6px; text-align: center; font-weight: bold; margin-top: 5px; font-size: 0.9rem; display: none; }
         .error { background: #fee2e2; color: var(--red); }
         .success { background: #dcfce7; color: var(--green); }
-        
         .pauta { background: #fffec7; color: #92400e; padding: 5px; border-radius: 6px; text-align: center; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; border: 1px solid #ffd700; }
-        .desafio-msg { background: #e0f2fe; color: #075985; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 10px; border: 1px solid #7dd3fc; display: none; font-size: 0.9rem; }
-
-        /* Temperature specific styles */
-        .formula-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0; }
-        .formula-btn { background: #f1f5f9; border: 2px solid #cbd5e1; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-        .formula-btn.selected { border-color: var(--blue); background: #dbeafe; }
-        .temp-calc-area { display: flex; align-items: center; justify-content: center; font-size: 1.2rem; gap: 5px; margin-top: 15px; }
-
+        .desafio-msg { background: #e0f2fe; color: #075985; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 10px; border: 1px solid #7dd3fc; display: none; font-weight: bold; font-size: 0.9rem; line-height: 1.4; }
+        
         .licencia-bloque { margin-top: 15px; background: #f1f5f9; color: #475569; font-size: 11px; text-align: center; border-radius: 8px; padding: 10px; border: 1px solid #e2e8f0; }
+        .licencia-bloque a { color: #2563eb; text-decoration: none; font-weight: bold; }
+        .badge-container { margin-bottom: 8px; display: block; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div id="selector-inicial">
-        <h1>Advanced Unit Conversion Simulator</h1>
+        <h1>Cambio de Unidades con Factores de Conversión 2</h1>
         <div class="menu-grid">
-            <button class="btn-tiempo" onclick="iniciar('tiempo')">Time (d, h, min, s)</button>
-            <button class="btn-densidad" onclick="iniciar('densidad')">Density (kg/m³, g/cm³, g/mL)</button>
-            <button class="btn-rapidez" onclick="iniciar('rapidez')">Speed (m/s ↔ km/h)</button>
-            <button class="btn-energia" onclick="iniciar('energia')">Energy (J, kJ, cal, kcal)</button>
-            <button class="btn-temp" onclick="iniciar('temperatura')">Temperature (ºC, K, ºF)</button>
+            <button class="btn-tiempo" onclick="iniciar('tiempo')">Tiempo (d, h, min, s)</button>
+            <button class="btn-densidad" onclick="iniciar('densidad')">Densidad (kg/m³, g/cm³, g/mL)</button>
+            <button class="btn-rapidez" onclick="iniciar('rapidez')">Rapidez (m/s ↔ km/h)</button>
+            <button class="btn-energia" onclick="iniciar('energia')">Energía (J, kJ, cal, kcal)</button>
         </div>
     </div>
 
     <div id="juego" style="display:none;">
         <h2 id="reto-txt"></h2>
+        <div class="desafio-msg" id="msg-desafio">
+            💡 <strong>¿Conoces un atajo?</strong><br>
+            Puedes resolver este reto por el "camino largo" (usando las 3 filas) o, si conoces la relación directa entre kcal y kJ, ¡puedes usar solo la primera fila!
+        </div>
         
-        <!-- Standard Factor Sections -->
-        <div id="factor-interface">
-            <div class="desafio-msg" id="msg-desafio">
-                💡 <strong>Know a shortcut?</strong><br>
-                Use the "long way" or the direct relation between kcal and kJ in one row!
-            </div>
-            
-            <div class="step">
-                <h3>1. Necessary Equivalencies:</h3>
-                <div class="pauta">ALWAYS PLACE THE LARGER UNIT ON THE LEFT WITH VALUE 1</div>
-                <div id="contenedor-p2"></div>
-                <button class="btn-mag" style="width:100%;" onclick="checkPaso2()">Check Equivalencies</button>
-                <div id="f2" class="feedback"></div>
-            </div>
-
-            <div id="step3-area" class="step" style="opacity:0.1; pointer-events:none;">
-                <h3>2. Conversion Factors:</h3>
-                <div class="row" id="contenedor-p3" style="overflow-x: auto;"></div>
-                <button class="btn-mag" style="width:100%; margin-top:10px;" onclick="checkPaso3()">Check Result</button>
-                <div id="f3" class="feedback"></div>
-            </div>
+        <div class="expo-bar" id="expo-teclado">
+            <button class="btn-expo" onclick="insertarExpo('³')">³</button>
         </div>
 
-        <!-- Temperature Interface -->
-        <div id="temp-interface" style="display:none;" class="step">
-            <h3>Temperature Calculation:</h3>
-            <p style="text-align:center;">Select the correct formula:</p>
-            <div class="formula-box" id="formula-container"></div>
-            <div id="temp-work-area"></div>
-            <button class="btn-mag" style="width:100%; margin-top:15px;" onclick="checkTemp()">Check Calculation</button>
-            <div id="f-temp" class="feedback"></div>
+        <div class="step">
+            <h3>1. Equivalencias necesarias:</h3>
+            <div class="pauta">LA UNIDAD MAYOR SIEMPRE A LA IZQUIERDA CON VALOR 1</div>
+            <div id="contenedor-p2"></div>
+            <button class="btn-mag" style="width:100%;" onclick="checkPaso2()">Comprobar Equivalencias</button>
+            <div id="f2" class="feedback"></div>
         </div>
 
-        <button onclick="location.reload()" style="width:100%; margin-top:10px; background:#64748b; color:white; padding:6px;">Restart</button>
+        <div id="step3-area" class="step" style="opacity:0.1; pointer-events:none;">
+            <h3>2. Factores de Conversión:</h3>
+            <div class="row" id="contenedor-p3" style="overflow-x: auto;"></div>
+            <button class="btn-mag" style="width:100%; margin-top:10px;" onclick="checkPaso3()">Comprobar Resultado</button>
+            <div id="f3" class="feedback"></div>
+        </div>
+        <button onclick="location.reload()" style="width:100%; margin-top:10px; background:#64748b; color:white; padding:6px;">Reiniciar</button>
     </div>
 
     <div class="licencia-bloque">
-        Author: <strong>EAG1964</strong> | 2026 | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank">CC BY-NC-SA 4.0</a>
+        <div class="badge-container">
+            <img src="https://visitor-badge.laobi.icu/badge?page_id=EAG1964.phychem.lab&left_text=Visitantes&left_color=gray&right_color=blue" alt="Visitantes">
+        </div>
+        Autor: <strong>EAG1964</strong> | 2026 | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es" target="_blank">Licencia CC BY-NC-SA 4.0</a>
     </div>
 </div>
 
 <script>
-    let data = { 
-        tipo: '', p2_sol:[], p3_sol:[], int2:3, int3:3, final_val:0, 
-        cant:0, ori:'', des:'', selectedFormula: null 
-    };
+    let data = { p2_sol:[], p3_sol:[], int2:3, int3:3, final_val:0, cant:0, ori:'', des:'', lastFocus:null };
 
-    const formulas = {
-        'CtoK': { label: 'K = ºC + 273', html: '( <input id="t1"> ) + 273 = <input id="tres"> K' },
-        'KtoC': { label: 'ºC = K - 273', html: '( <input id="t1"> ) - 273 = <input id="tres"> ºC' },
-        'CtoF': { label: 'ºF = (1.8 · ºC) + 32', html: '( 1.8 · <input id="t1"> ) + 32 = <input id="tres"> ºF' },
-        'FtoC': { label: 'ºC = (ºF - 32) / 1.8', html: '( <input id="t1"> - 32 ) / 1.8 = <input id="tres"> ºC' }
-    };
+    function insertarExpo(exp) { 
+        if(data.lastFocus) { 
+            const start = data.lastFocus.selectionStart;
+            const end = data.lastFocus.selectionEnd;
+            const text = data.lastFocus.value;
+            data.lastFocus.value = text.slice(0, start) + exp + text.slice(end);
+            data.lastFocus.focus();
+        } 
+    }
+
+    document.addEventListener('focusin', (e) => { 
+        if(e.target.classList.contains('in-unit')) data.lastFocus = e.target; 
+    });
 
     function iniciar(tipo) {
-        data.tipo = tipo;
         document.getElementById('selector-inicial').style.display='none';
         document.getElementById('juego').style.display='block';
-        
-        if(tipo === 'temperatura') {
-            document.getElementById('factor-interface').style.display = 'none';
-            document.getElementById('temp-interface').style.display = 'block';
-            setupTemp();
-        } else {
-            setupFactors(tipo);
-        }
-    }
+        document.getElementById('expo-teclado').style.display = (tipo === 'densidad') ? 'flex' : 'none';
+        document.getElementById('msg-desafio').style.display = 'none';
 
-    // --- TEMPERATURE LOGIC ---
-    function setupTemp() {
-        const units = ['ºC', 'K', 'ºF'];
-        data.ori = units[Math.floor(Math.random()*3)];
-        do { data.des = units[Math.floor(Math.random()*3)]; } while(data.ori === data.des);
-        
-        // Simple path selection (avoiding indirect F to K for basic level if preferred, but included here)
-        if(data.ori === 'ºC' && data.des === 'K') data.correctFormula = 'CtoK';
-        else if(data.ori === 'K' && data.des === 'ºC') data.correctFormula = 'KtoC';
-        else if(data.ori === 'ºC' && data.des === 'ºF') data.correctFormula = 'CtoF';
-        else if(data.ori === 'ºF' && data.des === 'ºC') data.correctFormula = 'FtoC';
-        else { // If K <-> F, we restart to keep it simpler or pick one
-            return setupTemp();
-        }
-
-        data.cant = (data.ori === 'K') ? Math.floor(Math.random()*200)+200 : Math.floor(Math.random()*150)-20;
-        document.getElementById('reto-txt').innerText = `CHALLENGE: Convert ${data.cant} ${data.ori} to ${data.des}`;
-        
-        const container = document.getElementById('formula-container');
-        container.innerHTML = '';
-        Object.keys(formulas).forEach(key => {
-            container.innerHTML += `<button class="formula-btn" id="btn-${key}" onclick="selectFormula('${key}')">${formulas[key].label}</button>`;
-        });
-    }
-
-    function selectFormula(key) {
-        data.selectedFormula = key;
-        document.querySelectorAll('.formula-btn').forEach(b => b.classList.remove('selected'));
-        document.getElementById('btn-'+key).classList.add('selected');
-        document.getElementById('temp-work-area').innerHTML = `<div class="temp-calc-area">${formulas[key].html}</div>`;
-    }
-
-    function checkTemp() {
-        const f = document.getElementById('f-temp');
-        f.style.display = 'block';
-        
-        if(!data.selectedFormula) {
-            f.innerText = "Please select a formula first.";
-            f.className = "feedback error";
-            return;
-        }
-
-        const t1 = parseFloat(document.getElementById('t1').value.replace(',', '.'));
-        const tres = parseFloat(document.getElementById('tres').value.replace(',', '.'));
-        
-        // Calculate expected result based on original value
-        let expected;
-        if(data.correctFormula === 'CtoK') expected = data.cant + 273;
-        if(data.correctFormula === 'KtoC') expected = data.cant - 273;
-        if(data.correctFormula === 'CtoF') expected = (1.8 * data.cant) + 32;
-        if(data.correctFormula === 'FtoC') expected = (data.cant - 32) / 1.8;
-
-        if(data.selectedFormula !== data.correctFormula) {
-            f.innerText = "Wrong formula for this conversion!";
-            f.className = "feedback error";
-        } else if(t1 !== data.cant) {
-            f.innerText = `The starting value should be ${data.cant}.`;
-            f.className = "feedback error";
-        } else if(Math.abs(tres - expected) > 0.1) {
-            f.innerText = "Calculation error. Check your math!";
-            f.className = "feedback error";
-        } else {
-            f.innerText = "✓ Perfect! Temperature converted correctly.";
-            f.className = "feedback success";
-        }
-    }
-
-    // --- STANDARD FACTORS LOGIC ---
-    function setupFactors(tipo) {
         data.cant = Math.floor(Math.random()*90)+10;
         let pasos = [];
 
         if(tipo === 'tiempo') {
-            const units = ['d','h','min','s'];
-            const db = [{u1:'d',v1:1,u2:'h',v2:24},{u1:'h',v1:1,u2:'min',v2:60},{u1:'min',v1:1,u2:'s',v2:60}];
+            const unidades = ['d','h','min','s'];
+            const u_db = [{u1:'d',v1:1,u2:'h',v2:24},{u1:'h',v1:1,u2:'min',v2:60},{u1:'min',v1:1,u2:'s',v2:60}];
             let i1 = Math.floor(Math.random()*2), i2 = i1 + Math.floor(Math.random()*2) + 1;
-            data.ori = units[i1]; data.des = units[i2];
-            for(let i=i1; i<i2; i++) pasos.push(db[i]);
+            data.ori = unidades[i1]; data.des = unidades[i2];
+            for(let i=i1; i<i2; i++) pasos.push(u_db[i]);
         } 
         else if(tipo === 'densidad') {
             const u = ['kg/m³', 'g/cm³', 'g/mL'];
             data.ori = u[Math.floor(Math.random()*3)];
             do { data.des = u[Math.floor(Math.random()*3)]; } while(data.ori === data.des);
-            if(data.ori.includes('kg') || data.des.includes('kg')) pasos.push({v1:1, u1:'kg', v2:1000, u2:'g'});
-            if(data.ori.includes('m³') || data.des.includes('m³')) pasos.push({v1:1, u1:'m³', v2:1000000, u2:'cm³'});
-            if(data.ori.includes('mL') || data.des.includes('mL')) pasos.push({v1:1, u1:'cm³', v2:1, u2:'mL'});
+            if ((data.ori === 'kg/m³' && data.des === 'g/cm³') || (data.ori === 'g/cm³' && data.des === 'kg/m³')) {
+                pasos.push({v1:1, u1:'kg', v2:1000, u2:'g'});
+                pasos.push({v1:1, u1:'m³', v2:1000000, u2:'cm³'});
+            } else if ((data.ori === 'kg/m³' && data.des === 'g/mL') || (data.ori === 'g/mL' && data.des === 'kg/m³')) {
+                pasos = [{v1:1, u1:'kg', v2:1000, u2:'g'}, {v1:1, u1:'m³', v2:1000000, u2:'cm³'}, {v1:1, u1:'cm³', v2:1, u2:'mL'}];
+            } else if ((data.ori === 'g/cm³' && data.des === 'g/mL') || (data.ori === 'g/mL' && data.des === 'g/cm³')) {
+                pasos.push({v1:1, u1:'cm³', v2:1, u2:'mL'});
+            }
         }
         else if(tipo === 'rapidez') {
             const toMS = Math.random() > 0.5;
-            data.ori = toMS ? 'km/h' : 'm/s'; data.des = toMS ? 'm/s' : 'km/h';
-            pasos = [{v1:1, u1:'km', v2:1000, u2:'m'}, {v1:1, u1:'h', v2:3600, u2:'s'}];
+            data.ori = toMS ? 'km/h' : 'm/s';
+            data.des = toMS ? 'm/s' : 'km/h';
+            pasos.push({v1:1, u1:'km', v2:1000, u2:'m'});
+            pasos.push({v1:1, u1:'h', v2:3600, u2:'s'});
         }
         else if(tipo === 'energia') {
             const units = ['kJ', 'J', 'cal', 'kcal'];
@@ -230,11 +145,20 @@
             let i1 = Math.floor(Math.random()*4), i2;
             do { i2 = Math.floor(Math.random()*4); } while(i1 === i2);
             data.ori = units[i1]; data.des = units[i2];
-            if((data.ori === 'kcal' && data.des === 'kJ') || (data.ori === 'kJ' && data.des === 'kcal')) document.getElementById('msg-desafio').style.display = 'block';
-            if (i1 < i2) { for(let i=i1; i<i2; i++) pasos.push(links[i]); } else { for(let i=i1-1; i>=i2; i--) pasos.push(links[i]); }
+            
+            if((data.ori === 'kcal' && data.des === 'kJ') || (data.ori === 'kJ' && data.des === 'kcal')) {
+                document.getElementById('msg-desafio').style.display = 'block';
+            }
+
+            if (i1 < i2) { for(let i=i1; i<i2; i++) pasos.push(links[i]); } 
+            else { for(let i=i1-1; i>=i2; i--) pasos.push(links[i]); }
         }
 
-        document.getElementById('reto-txt').innerText = `CHALLENGE: ${data.cant} ${data.ori} to ${data.des}`;
+        document.getElementById('reto-txt').innerText = `RETO: ${data.cant} ${data.ori} a ${data.des}`;
+        setupJuego(pasos);
+    }
+
+    function setupJuego(pasos) {
         data.p2_sol = pasos;
         const c2 = document.getElementById('contenedor-p2'); c2.innerHTML = '';
         data.p2_sol.forEach((p, i) => {
@@ -245,14 +169,17 @@
 
     function actualizarP3Sol() {
         data.final_val = data.cant;
-        let cur_num = data.ori.split('/')[0], cur_den = data.ori.split('/')[1] || "";
+        let parts = data.ori.split('/');
+        let cur_num = parts[0], cur_den = parts[1] || "";
         data.p3_sol = data.p2_sol.map(eq => {
             let f;
             if(eq.u1 === cur_num || eq.u2 === cur_num) {
-                f = (eq.u1 === cur_num) ? {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1} : {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2};
+                if(eq.u1 === cur_num) f = {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1};
+                else f = {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2};
                 cur_num = f.nu;
             } else {
-                f = (eq.u1 === cur_den) ? {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2} : {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1};
+                if(eq.u1 === cur_den) f = {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2};
+                else f = {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1};
                 cur_den = f.nu;
             }
             return f;
@@ -267,52 +194,83 @@
             let u1 = document.getElementById(`p2u1_${i}`).value.trim();
             let v2 = document.getElementById(`p2v2_${i}`).value.replace(',', '.').trim();
             let u2 = document.getElementById(`p2u2_${i}`).value.trim();
-            if(v1) inputs.push({v1, u1, v2, u2});
+            if(v1 || u1 || v2 || u2) inputs.push({v1, u1, v2, u2});
         }
 
-        // Special kcal-kJ shortcut logic
-        let shortcut = false;
+        let esDirectaValida = false;
         if(inputs.length === 1 && ((data.ori==='kcal' && data.des==='kJ') || (data.ori==='kJ' && data.des==='kcal'))) {
             let i = inputs[0];
-            if((i.v1=='1' && i.u1=='kcal' && i.v2=='4.18' && i.u2=='kJ') || (i.v1=='4.18' && i.u1=='kJ' && i.v2=='1' && i.u2=='kcal')) {
-                shortcut = true; data.p2_sol = [{v1:1, u1:'kcal', v2:4.18, u2:'kJ'}]; actualizarP3Sol();
+            // Validamos la relación 1 kcal = 4.18 kJ de forma bidireccional
+            if((i.v1=='1' && i.u1=='kcal' && i.v2=='4.18' && i.u2=='kJ') || 
+               (i.v1=='4.18' && i.u1=='kJ' && i.v2=='1' && i.u2=='kcal')) {
+                esDirectaValida = true;
+                data.p2_sol = [{v1:1, u1:'kcal', v2:4.18, u2:'kJ'}];
+                actualizarP3Sol();
             }
         }
 
-        let correctCount = 0;
-        let used = new Set();
+        let aciertos = 0;
+        let usadas = new Set();
         inputs.forEach(inp => {
             let idx = data.p2_sol.findIndex((s, j) => {
-                if (used.has(j)) return false;
-                return (inp.v1 == s.v1 && inp.u1 == s.u1 && inp.v2 == s.v2 && inp.u2 == s.u2) || (inp.v1 == s.v2 && inp.u1 == s.u2 && inp.v2 == s.v1 && inp.u2 == s.u1);
+                if (usadas.has(j)) return false;
+                let normal = (inp.v1 == s.v1 && inp.u1 == s.u1 && inp.v2 == s.v2 && inp.u2 == s.u2);
+                let inverso = (inp.v1 == s.v2 && inp.u1 == s.u2 && inp.v2 == s.v1 && inp.u2 == s.u1);
+                return normal || inverso;
             });
-            if (idx !== -1) { correctCount++; used.add(idx); }
+            if (idx !== -1) { aciertos++; usadas.add(idx); }
         });
 
         const f = document.getElementById('f2'); f.style.display = 'block';
-        if (shortcut || correctCount === data.p2_sol.length) { 
-            f.innerText = "✓ Correct!"; f.className = "feedback success"; activarPaso3(); 
+        
+        if (esDirectaValida || aciertos === data.p2_sol.length) { 
+            f.innerText = "✓ ¡Correcto!"; f.className = "feedback success"; activarPaso3(); 
+            document.getElementById('msg-desafio').style.display = 'none';
         } else { 
-            data.int2--; f.innerText = `× Incorrect. ${data.int2} attempts left.`; f.className = "feedback error";
-            if (data.int2 <= 0) activarPaso3();
+            data.int2--; 
+            if (data.int2 <= 0) { aplicarSolP2(); activarPaso3(); } 
+            else { f.innerText = `× Error. Quedan ${data.int2} intentos.`; f.className = "feedback error"; } 
         }
     }
 
     function activarPaso3() {
         document.getElementById('step3-area').style.opacity="1"; document.getElementById('step3-area').style.pointerEvents="auto";
-        let h = `<input value="${data.cant}" style="width:60px"> <input class="in-unit" value="${data.ori}" style="width:70px">`;
+        let h = `<input id="p3_ini_val" value="${data.cant}" style="width:60px"> <input id="p3_ini_unit" class="in-unit" value="${data.ori}" style="width:70px">`;
         data.p3_sol.forEach((s, i) => {
-            h += ` <span>·</span> <div class="fraction"><div class="frac-row"><input id="p3nv_${i}"> <input id="p3nu_${i}" class="in-unit"></div><hr class="frac-line"><div class="frac-row"><input id="p3dv_${i}"> <input id="p3du_${i}" class="in-unit"></div></div>`;
+            h += ` <span style="font-size:18px;">·</span> 
+                  <div class="fraction">
+                    <div class="frac-row"><input id="p3nv_${i}" style="width:100px"> <input id="p3nu_${i}" class="in-unit" style="width:90px"></div>
+                    <hr class="frac-line" style="width:200px">
+                    <div class="frac-row"><input id="p3dv_${i}" style="width:60px"> <input id="p3du_${i}" class="in-unit" style="width:90px"></div>
+                  </div>`;
         });
-        h += ` <span>=</span> <input id="p3res"> <input class="in-unit" value="${data.des}">`;
+        h += ` <span>=</span> <input id="p3res" style="width:90px"> <input id="p3_fin_unit" class="in-unit" value="${data.des}" style="width:70px">`;
         document.getElementById('contenedor-p3').innerHTML = h;
     }
 
     function checkPaso3() {
         let res = parseFloat(document.getElementById('p3res').value.replace(',', '.'));
+        let diff = Math.abs(res - data.final_val);
         const f = document.getElementById('f3'); f.style.display='block';
-        if(Math.abs(res - data.final_val) < 0.1) { f.innerText="✓ Excellent!"; f.className="feedback success"; }
-        else { data.int3--; f.innerText=`× Incorrect. ${data.int3} attempts left.`; f.className="feedback error"; }
+        if(diff < 0.000001 || (data.final_val !== 0 && diff/Math.abs(data.final_val) < 0.005)) { f.innerText="✓ ¡Excelente!"; f.className="feedback success"; }
+        else { data.int3--; if(data.int3 <= 0) aplicarSolP3(); else { f.innerText=`× Error. Quedan ${data.int3} intentos.`; f.className="feedback error"; } }
+    }
+
+    function aplicarSolP2() {
+        data.p2_sol.forEach((s, i) => {
+            if(document.getElementById(`p2v1_${i}`)) {
+                document.getElementById(`p2v1_${i}`).value = s.v1; document.getElementById(`p2u1_${i}`).value = s.u1;
+                document.getElementById(`p2v2_${i}`).value = s.v2; document.getElementById(`p2u2_${i}`).value = s.u2;
+            }
+        });
+    }
+
+    function aplicarSolP3() {
+        data.p3_sol.forEach((s, i) => {
+            document.getElementById(`p3nv_${i}`).value = s.nv; document.getElementById(`p3nu_${i}`).value = s.nu;
+            document.getElementById(`p3dv_${i}`).value = s.dv; document.getElementById(`p3du_${i}`).value = s.du;
+        });
+        document.getElementById('p3res').value = Number(data.final_val.toPrecision(6));
     }
 </script>
 </body>
