@@ -21,6 +21,9 @@
         .btn-energia { background: #8b5cf6; color: white; }
         .btn-temp { background: #be123c; color: white; }
 
+        .expo-bar { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; background: #eff6ff; padding: 10px; border-radius: 8px; border: 1px dashed var(--blue); }
+        .btn-expo { background: #334155; color: white; width: 40px; height: 40px; font-size: 1.2rem; }
+
         .step { margin-top: 0.5rem; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.8rem; border-left: 5px solid var(--blue); }
         .row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; flex-wrap: nowrap; }
         
@@ -38,7 +41,6 @@
         .pauta { background: #fffec7; color: #92400e; padding: 5px; border-radius: 6px; text-align: center; margin-bottom: 5px; font-size: 0.85rem; font-weight: bold; border: 1px solid #ffd700; }
         .desafio-msg { background: #e0f2fe; color: #075985; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 10px; border: 1px solid #7dd3fc; display: none; font-size: 0.9rem; }
 
-        /* Temperature specific styles */
         .formula-box { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 10px 0; }
         .formula-btn { background: #f1f5f9; border: 2px solid #cbd5e1; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
         .formula-btn.selected { border-color: var(--blue); background: #dbeafe; }
@@ -67,15 +69,19 @@
         
         <div id="factor-interface">
             <div class="desafio-msg" id="msg-desafio">
-                💡 <strong>Know a shortcut?</strong><br>
-                Use the "long way" or the direct relation between kcal and kJ in one row!
+                💡 <strong>Do you know a shortcut?</strong><br>
+                You can use the long way or the direct relationship between kcal and kJ in a single row!
             </div>
             
+            <div class="expo-bar" id="expo-teclado" style="display:none;">
+                <button class="btn-expo" onclick="insertarExpo('³')">³</button>
+            </div>
+
             <div class="step">
-                <h3>1. Necessary Equivalencies:</h3>
-                <div class="pauta">ALWAYS PLACE THE LARGER UNIT ON THE LEFT WITH VALUE 1</div>
+                <h3>1. Necessary Equivalences:</h3>
+                <div class="pauta">ALWAYS PLACE THE LARGER UNIT ON THE LEFT WITH A VALUE OF 1</div>
                 <div id="contenedor-p2"></div>
-                <button class="btn-mag" style="width:100%;" onclick="checkPaso2()">Check Equivalencies</button>
+                <button class="btn-mag" style="width:100%;" onclick="checkPaso2()">Check Equivalences</button>
                 <div id="f2" class="feedback"></div>
             </div>
 
@@ -101,7 +107,7 @@
 
     <div class="licencia-bloque">
         <div class="badge-container">
-            <img src="https://visitor-badge.laobi.icu/badge?page_id=EAG1964.phychem.lab&left_text=Visitors&left_color=gray&right_color=blue" alt="Visitors">
+            <img src="https://visitor-badge.laobi.icu/badge?page_id=EAG1964.phychem.lab&left_text=Visits&left_color=gray&right_color=blue" alt="Visits">
         </div>
         Author: <strong>EAG1964</strong> | 2026 | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank">CC BY-NC-SA 4.0</a>
     </div>
@@ -109,8 +115,8 @@
 
 <script>
     let data = { 
-        tipo: '', p2_sol:[], p3_sol:[], int2:3, int3:3, final_val:0, 
-        cant:0, ori:'', des:'', selectedFormula: null 
+        tipo: '', p2_sol:[], p3_sol:[], int2:3, int3:3, intTemp:3, final_val:0, 
+        cant:0, ori:'', des:'', selectedFormula: null, lastFocus: null 
     };
 
     const formulas = {
@@ -120,11 +126,29 @@
         'FtoC': { label: 'ºC = (ºF - 32) / 1.8', html: '( <input id="t1"> - 32 ) / 1.8 = <input id="tres"> ºC' }
     };
 
+    // Funciones para el teclado de exponentes
+    document.addEventListener('focusin', (e) => { 
+        if(e.target.classList.contains('in-unit')) data.lastFocus = e.target; 
+    });
+    
+    function insertarExpo(exp) { 
+        if(data.lastFocus) { 
+            data.lastFocus.value += exp; 
+            data.lastFocus.focus(); 
+        } 
+    }
+
     function iniciar(tipo) {
         data.tipo = tipo;
         document.getElementById('selector-inicial').style.display='none';
         document.getElementById('juego').style.display='block';
         
+        if(tipo === 'densidad') {
+            document.getElementById('expo-teclado').style.display = 'flex';
+        } else {
+            document.getElementById('expo-teclado').style.display = 'none';
+        }
+
         if(tipo === 'temperatura') {
             document.getElementById('factor-interface').style.display = 'none';
             document.getElementById('temp-interface').style.display = 'block';
@@ -134,20 +158,16 @@
         }
     }
 
-    // --- TEMPERATURE LOGIC ---
     function setupTemp() {
         const units = ['ºC', 'K', 'ºF'];
         data.ori = units[Math.floor(Math.random()*3)];
         do { data.des = units[Math.floor(Math.random()*3)]; } while(data.ori === data.des);
         
-        // Simple path selection (avoiding indirect F to K for basic level if preferred, but included here)
         if(data.ori === 'ºC' && data.des === 'K') data.correctFormula = 'CtoK';
         else if(data.ori === 'K' && data.des === 'ºC') data.correctFormula = 'KtoC';
         else if(data.ori === 'ºC' && data.des === 'ºF') data.correctFormula = 'CtoF';
         else if(data.ori === 'ºF' && data.des === 'ºC') data.correctFormula = 'FtoC';
-        else { // If K <-> F, we restart to keep it simpler or pick one
-            return setupTemp();
-        }
+        else { return setupTemp(); }
 
         data.cant = (data.ori === 'K') ? Math.floor(Math.random()*200)+200 : Math.floor(Math.random()*150)-20;
         document.getElementById('reto-txt').innerText = `CHALLENGE: Convert ${data.cant} ${data.ori} to ${data.des}`;
@@ -179,29 +199,43 @@
         const t1 = parseFloat(document.getElementById('t1').value.replace(',', '.'));
         const tres = parseFloat(document.getElementById('tres').value.replace(',', '.'));
         
-        // Calculate expected result based on original value
         let expected;
         if(data.correctFormula === 'CtoK') expected = data.cant + 273;
         if(data.correctFormula === 'KtoC') expected = data.cant - 273;
         if(data.correctFormula === 'CtoF') expected = (1.8 * data.cant) + 32;
         if(data.correctFormula === 'FtoC') expected = (data.cant - 32) / 1.8;
 
-        if(data.selectedFormula !== data.correctFormula) {
-            f.innerText = "Wrong formula for this conversion!";
-            f.className = "feedback error";
-        } else if(t1 !== data.cant) {
-            f.innerText = `The starting value should be ${data.cant}.`;
-            f.className = "feedback error";
-        } else if(Math.abs(tres - expected) > 0.1) {
-            f.innerText = "Calculation error. Check your math!";
-            f.className = "feedback error";
-        } else {
+        if(data.selectedFormula === data.correctFormula && t1 === data.cant && Math.abs(tres - expected) <= 0.1) {
             f.innerText = "✓ Perfect! Temperature converted correctly.";
             f.className = "feedback success";
+        } else {
+            data.intTemp--;
+            if(data.intTemp <= 0) {
+                aplicarSolTemp();
+            } else {
+                f.innerText = `× Calculation or formula error. ${data.intTemp} attempts left.`;
+                f.className = "feedback error";
+            }
         }
     }
 
-    // --- STANDARD FACTORS LOGIC ---
+    function aplicarSolTemp() {
+        selectFormula(data.correctFormula);
+        document.getElementById('t1').value = data.cant;
+        let expected;
+        if(data.correctFormula === 'CtoK') expected = data.cant + 273;
+        if(data.correctFormula === 'KtoC') expected = data.cant - 273;
+        if(data.correctFormula === 'CtoF') expected = (1.8 * data.cant) + 32;
+        if(data.correctFormula === 'FtoC') expected = (data.cant - 32) / 1.8;
+        
+        // Redondeamos para evitar muchos decimales en JS
+        document.getElementById('tres').value = parseFloat(expected.toFixed(2));
+        
+        const f = document.getElementById('f-temp');
+        f.innerText = "× No attempts left. Showing the correct solution.";
+        f.className = "feedback error";
+    }
+
     function setupFactors(tipo) {
         data.cant = Math.floor(Math.random()*90)+10;
         let pasos = [];
@@ -272,7 +306,6 @@
             if(v1) inputs.push({v1, u1, v2, u2});
         }
 
-        // Special kcal-kJ shortcut logic
         let shortcut = false;
         if(inputs.length === 1 && ((data.ori==='kcal' && data.des==='kJ') || (data.ori==='kJ' && data.des==='kcal'))) {
             let i = inputs[0];
@@ -295,9 +328,26 @@
         if (shortcut || correctCount === data.p2_sol.length) { 
             f.innerText = "✓ Correct!"; f.className = "feedback success"; activarPaso3(); 
         } else { 
-            data.int2--; f.innerText = `× Incorrect. ${data.int2} attempts left.`; f.className = "feedback error";
-            if (data.int2 <= 0) activarPaso3();
+            data.int2--; 
+            if (data.int2 <= 0) {
+                aplicarSolP2();
+                activarPaso3();
+                f.innerText = "× No attempts left. Showing solution."; 
+                f.className = "feedback error";
+            } else {
+                f.innerText = `× Incorrect. You have ${data.int2} attempts left.`; 
+                f.className = "feedback error";
+            }
         }
+    }
+
+    function aplicarSolP2() {
+        data.p2_sol.forEach((s, i) => {
+            document.getElementById(`p2v1_${i}`).value = s.v1; 
+            document.getElementById(`p2u1_${i}`).value = s.u1;
+            document.getElementById(`p2v2_${i}`).value = s.v2; 
+            document.getElementById(`p2u2_${i}`).value = s.u2;
+        });
     }
 
     function activarPaso3() {
@@ -313,8 +363,31 @@
     function checkPaso3() {
         let res = parseFloat(document.getElementById('p3res').value.replace(',', '.'));
         const f = document.getElementById('f3'); f.style.display='block';
-        if(Math.abs(res - data.final_val) < 0.1) { f.innerText="✓ Excellent!"; f.className="feedback success"; }
-        else { data.int3--; f.innerText=`× Incorrect. ${data.int3} attempts left.`; f.className="feedback error"; }
+        
+        // Tolerancia a pequeños errores de punto flotante en la cuenta (e.g. 0.0000000001)
+        if(Math.abs(res - data.final_val) < 0.01 || (data.final_val !== 0 && Math.abs(res - data.final_val)/Math.abs(data.final_val) < 1e-3)) { 
+            f.innerText="✓ Excellent job!"; f.className="feedback success"; 
+        } else { 
+            data.int3--; 
+            if(data.int3 <= 0) {
+                aplicarSolP3();
+                f.innerText="× No attempts left. Showing the correct solution."; 
+                f.className="feedback error";
+            } else {
+                f.innerText=`× Incorrect result. You have ${data.int3} attempts left.`; 
+                f.className="feedback error";
+            }
+        }
+    }
+
+    function aplicarSolP3() {
+        data.p3_sol.forEach((s, i) => {
+            document.getElementById(`p3nv_${i}`).value = s.nv; 
+            document.getElementById(`p3nu_${i}`).value = s.nu;
+            document.getElementById(`p3dv_${i}`).value = s.dv; 
+            document.getElementById(`p3du_${i}`).value = s.du;
+        });
+        document.getElementById('p3res').value = parseFloat(data.final_val.toFixed(6));
     }
 </script>
 </body>
