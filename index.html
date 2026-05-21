@@ -23,14 +23,16 @@
 
         .expo-bar { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; background: #eff6ff; padding: 10px; border-radius: 8px; border: 1px dashed var(--blue); }
         .btn-expo { background: #334155; color: white; width: 40px; height: 40px; font-size: 1.2rem; }
+        .expo-label { color: var(--blue); font-weight: bold; font-size: 0.95rem; }
 
         .step { margin-top: 0.5rem; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 0.8rem; border-left: 5px solid var(--blue); }
         .row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 8px 0; flex-wrap: nowrap; }
         
         input { padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; width: 100px; font-weight: bold; font-size: 1rem; }
         .in-unit { background: #fffcf0; width: 95px; }
+        input[readonly] { background-color: #f1f5f9; border-color: #e2e8f0; color: #475569; }
         
-        .fraction { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .fraction { display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 0 5px; }
         .frac-row { display: flex; align-items: center; gap: 4px; justify-content: center; }
         .frac-line { width: 100%; height: 2px; background: #334155; margin: 2px 0; border: none; }
         
@@ -70,11 +72,12 @@
         <div id="factor-interface">
             <div class="desafio-msg" id="msg-desafio">
                 💡 <strong>Do you know a shortcut?</strong><br>
-                You can use the long way or the direct relationship between kcal and kJ in a single row!
+                You can use the long path or the direct relationship between kcal and kJ in a single row!
             </div>
             
             <div class="expo-bar" id="expo-teclado" style="display:none;">
-                <button class="btn-expo" onclick="insertarExpo('³')">³</button>
+                <span class="expo-label">Add exponent 3 (cube):</span>
+                <button class="btn-expo" onclick="insertarExpo('³')" title="Insert exponent ³">³</button>
             </div>
 
             <div class="step">
@@ -102,14 +105,14 @@
             <div id="f-temp" class="feedback"></div>
         </div>
 
-        <button onclick="location.reload()" style="width:100%; margin-top:10px; background:#64748b; color:white; padding:6px;">Restart</button>
+        <button onclick="location.reload()" style="width:100%; margin-top:10px; background:#64748b; color:white; padding:6px;">Reset</button>
     </div>
 
     <div class="licencia-bloque">
         <div class="badge-container">
             <img src="https://visitor-badge.laobi.icu/badge?page_id=EAG1964.phychem.lab&left_text=Visits&left_color=gray&right_color=blue" alt="Visits">
         </div>
-        Author: <strong>EAG1964</strong> | 2026 | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank">CC BY-NC-SA 4.0</a>
+        Author: <strong>EAG1964</strong> | 2026 | <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es" target="_blank">CC BY-NC-SA 4.0</a>
     </div>
 </div>
 
@@ -126,9 +129,11 @@
         'FtoC': { label: 'ºC = (ºF - 32) / 1.8', html: '( <input id="t1"> - 32 ) / 1.8 = <input id="tres"> ºC' }
     };
 
-    // Funciones para el teclado de exponentes
+    // Keyboard exponent handlers
     document.addEventListener('focusin', (e) => { 
-        if(e.target.classList.contains('in-unit')) data.lastFocus = e.target; 
+        if(e.target.classList.contains('in-unit') && !e.target.hasAttribute('readonly')) {
+            data.lastFocus = e.target; 
+        }
     });
     
     function insertarExpo(exp) { 
@@ -206,14 +211,14 @@
         if(data.correctFormula === 'FtoC') expected = (data.cant - 32) / 1.8;
 
         if(data.selectedFormula === data.correctFormula && t1 === data.cant && Math.abs(tres - expected) <= 0.1) {
-            f.innerText = "✓ Perfect! Temperature converted correctly.";
+            f.innerText = "✓ Perfect! Temperature successfully converted.";
             f.className = "feedback success";
         } else {
             data.intTemp--;
             if(data.intTemp <= 0) {
                 aplicarSolTemp();
             } else {
-                f.innerText = `× Calculation or formula error. ${data.intTemp} attempts left.`;
+                f.innerText = `× Calculation or formula error. ${data.intTemp} attempts remaining.`;
                 f.className = "feedback error";
             }
         }
@@ -228,11 +233,10 @@
         if(data.correctFormula === 'CtoF') expected = (1.8 * data.cant) + 32;
         if(data.correctFormula === 'FtoC') expected = (data.cant - 32) / 1.8;
         
-        // Redondeamos para evitar muchos decimales en JS
         document.getElementById('tres').value = parseFloat(expected.toFixed(2));
         
         const f = document.getElementById('f-temp');
-        f.innerText = "× No attempts left. Showing the correct solution.";
+        f.innerText = "× Attempts exhausted. Showing correct solution.";
         f.className = "feedback error";
     }
 
@@ -251,9 +255,26 @@
             const u = ['kg/m³', 'g/cm³', 'g/mL'];
             data.ori = u[Math.floor(Math.random()*3)];
             do { data.des = u[Math.floor(Math.random()*3)]; } while(data.ori === data.des);
-            if(data.ori.includes('kg') || data.des.includes('kg')) pasos.push({v1:1, u1:'kg', v2:1000, u2:'g'});
-            if(data.ori.includes('m³') || data.des.includes('m³')) pasos.push({v1:1, u1:'m³', v2:1000000, u2:'cm³'});
-            if(data.ori.includes('mL') || data.des.includes('mL')) pasos.push({v1:1, u1:'cm³', v2:1, u2:'mL'});
+            
+            const tieneKgM3 = (data.ori === 'kg/m³' || data.des === 'kg/m³');
+            const tieneGCm3 = (data.ori === 'g/cm³' || data.des === 'g/cm³');
+            const tieneGML  = (data.ori === 'g/mL' || data.des === 'g/mL');
+
+            if (tieneKgM3 && tieneGCm3) {
+                pasos.push({v1:1, u1:'kg', v2:1000, u2:'g'});
+                pasos.push({v1:1, u1:'m³', v2:1000000, u2:'cm³'});
+            } else if (tieneKgM3 && tieneGML) {
+                pasos.push({v1:1, u1:'kg', v2:1000, u2:'g'});
+                if (data.ori === 'kg/m³') {
+                    pasos.push({v1:1, u1:'m³', v2:1000000, u2:'cm³'});
+                    pasos.push({v1:1, u1:'cm³', v2:1, u2:'mL'});
+                } else { // g/mL -> kg/m³
+                    pasos.push({v1:1, u1:'cm³', v2:1, u2:'mL'});
+                    pasos.push({v1:1, u1:'m³', v2:1000000, u2:'cm³'});
+                }
+            } else if (tieneGCm3 && tieneGML) {
+                pasos.push({v1:1, u1:'cm³', v2:1, u2:'mL'});
+            }
         }
         else if(tipo === 'rapidez') {
             const toMS = Math.random() > 0.5;
@@ -281,19 +302,39 @@
 
     function actualizarP3Sol() {
         data.final_val = data.cant;
-        let cur_num = data.ori.split('/')[0], cur_den = data.ori.split('/')[1] || "";
+        let cur_num = data.ori.split('/')[0];
+        let cur_den = data.ori.split('/')[1] || "";
+        
         data.p3_sol = data.p2_sol.map(eq => {
             let f;
             if(eq.u1 === cur_num || eq.u2 === cur_num) {
-                f = (eq.u1 === cur_num) ? {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1} : {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2};
-                cur_num = f.nu;
-            } else {
-                f = (eq.u1 === cur_den) ? {nv:eq.v1, nu:eq.u1, dv:eq.v2, du:eq.u2} : {nv:eq.v2, nu:eq.u2, dv:eq.v1, du:eq.u1};
-                cur_den = f.nu;
+                if (eq.u1 === cur_num) {
+                    f = { nv: eq.v2, nu: eq.u2, dv: eq.v1, du: eq.u1 };
+                    cur_num = eq.u2;
+                } else {
+                    f = { nv: eq.v1, nu: eq.u1, dv: eq.v2, du: eq.u2 };
+                    cur_num = eq.u1;
+                }
+            } 
+            else if(eq.u1 === cur_den || eq.u2 === cur_den) {
+                if (eq.u1 === cur_den) {
+                    f = { nv: eq.v1, nu: eq.u1, dv: eq.v2, du: eq.u2 };
+                    cur_den = eq.u2;
+                } else {
+                    f = { nv: eq.v2, nu: eq.u2, dv: eq.v1, du: eq.u1 };
+                    cur_den = eq.u1;
+                }
+            } 
+            else {
+                f = { nv: eq.v2, nu: eq.u2, dv: eq.v1, du: eq.u1 };
             }
             return f;
         });
-        data.p3_sol.forEach(f => data.final_val = (data.final_val * f.nv) / f.dv);
+
+        data.final_val = data.cant;
+        data.p3_sol.forEach(f => {
+            data.final_val = (data.final_val * f.nv) / f.dv;
+        });
     }
 
     function checkPaso2() {
@@ -332,10 +373,10 @@
             if (data.int2 <= 0) {
                 aplicarSolP2();
                 activarPaso3();
-                f.innerText = "× No attempts left. Showing solution."; 
+                f.innerText = "× Attempts exhausted. Showing correct solution."; 
                 f.className = "feedback error";
             } else {
-                f.innerText = `× Incorrect. You have ${data.int2} attempts left.`; 
+                f.innerText = `× Incorrect. You have ${data.int2} attempts remaining.`; 
                 f.className = "feedback error";
             }
         }
@@ -351,12 +392,44 @@
     }
 
     function activarPaso3() {
-        document.getElementById('step3-area').style.opacity="1"; document.getElementById('step3-area').style.pointerEvents="auto";
-        let h = `<input value="${data.cant}" style="width:60px"> <input class="in-unit" value="${data.ori}" style="width:70px">`;
+        document.getElementById('step3-area').style.opacity="1"; 
+        document.getElementById('step3-area').style.pointerEvents="auto";
+        
+        let h = `<input value="${data.cant}" style="width:60px" readonly>`;
+        
+        if(data.ori.includes('/')) {
+            let parts = data.ori.split('/');
+            h += `<div class="fraction">
+                    <div class="frac-row"><input class="in-unit" value="${parts[0]}" style="width:50px" readonly></div>
+                    <hr class="frac-line">
+                    <div class="frac-row"><input class="in-unit" value="${parts[1]}" style="width:50px" readonly></div>
+                  </div>`;
+        } else {
+            h += ` <input class="in-unit" value="${data.ori}" style="width:70px" readonly>`;
+        }
+
         data.p3_sol.forEach((s, i) => {
-            h += ` <span>·</span> <div class="fraction"><div class="frac-row"><input id="p3nv_${i}"> <input id="p3nu_${i}" class="in-unit"></div><hr class="frac-line"><div class="frac-row"><input id="p3dv_${i}"> <input id="p3du_${i}" class="in-unit"></div></div>`;
+            h += ` <span style="font-size:1.5rem; margin: 0 4px;">·</span> 
+                   <div class="fraction">
+                     <div class="frac-row"><input id="p3nv_${i}"> <input id="p3nu_${i}" class="in-unit"></div>
+                     <hr class="frac-line">
+                     <div class="frac-row"><input id="p3dv_${i}"> <input id="p3du_${i}" class="in-unit"></div>
+                   </div>`;
         });
-        h += ` <span>=</span> <input id="p3res"> <input class="in-unit" value="${data.des}">`;
+        
+        h += ` <span style="font-size:1.5rem; margin: 0 4px;">=</span> <input id="p3res">`;
+        
+        if(data.des.includes('/')) {
+            let parts = data.des.split('/');
+            h += `<div class="fraction">
+                    <div class="frac-row"><input class="in-unit" value="${parts[0]}" style="width:50px" readonly></div>
+                    <hr class="frac-line">
+                    <div class="frac-row"><input class="in-unit" value="${parts[1]}" style="width:50px" readonly></div>
+                  </div>`;
+        } else {
+            h += ` <input class="in-unit" value="${data.des}" style="width:70px" readonly>`;
+        }
+
         document.getElementById('contenedor-p3').innerHTML = h;
     }
 
@@ -364,17 +437,16 @@
         let res = parseFloat(document.getElementById('p3res').value.replace(',', '.'));
         const f = document.getElementById('f3'); f.style.display='block';
         
-        // Tolerancia a pequeños errores de punto flotante en la cuenta (e.g. 0.0000000001)
         if(Math.abs(res - data.final_val) < 0.01 || (data.final_val !== 0 && Math.abs(res - data.final_val)/Math.abs(data.final_val) < 1e-3)) { 
-            f.innerText="✓ Excellent job!"; f.className="feedback success"; 
+            f.innerText="✓ Excellent work!"; f.className="feedback success"; 
         } else { 
             data.int3--; 
             if(data.int3 <= 0) {
                 aplicarSolP3();
-                f.innerText="× No attempts left. Showing the correct solution."; 
+                f.innerText="× Attempts exhausted. Showing correct solution."; 
                 f.className="feedback error";
             } else {
-                f.innerText=`× Incorrect result. You have ${data.int3} attempts left.`; 
+                f.innerText=`× Incorrect result. You have ${data.int3} attempts remaining.`; 
                 f.className="feedback error";
             }
         }
